@@ -62,11 +62,13 @@ var jane = {
 };
 ```
 
-- 1. Use `this` in methods to refer to the current object (also called the receiver of a method invocation).
-- 2. ECMAScript 5 allows a trailing comma (after the last property) in an object literal. Alas, not all older browsers support it. A trailing comma is useful, because you can rearrange properties without having to worry which property is last.
+- 1.Use `this` in methods to refer to the current object (also called the receiver of a method invocation).
 
-- 1. 在对象的方法中，使用`this`来指代当前的对象（这个当前对象也被称作方法调用的接收器 receiver）。
-- 2. ECMAScript 5 允许在对象字面量的最后一个属性之后使用逗号。不是所有的老式浏览器支持这个写法。末尾逗号很有用，因为你可以调换属性的顺序，而不用担心哪个属性是最后一个。
+在对象的方法中，使用`this`来指代当前的对象（这个当前对象也被称作方法调用的接收器 receiver）。
+
+- 2.ECMAScript 5 allows a trailing comma (after the last property) in an object literal. Alas, not all older browsers support it. A trailing comma is useful, because you can rearrange properties without having to worry which property is last.
+
+ECMAScript 5 允许在对象字面量的最后一个属性之后使用逗号。不是所有的老式浏览器支持这个写法。末尾逗号很有用，因为你可以调换属性的顺序，而不用担心哪个属性是最后一个。
 
 You may get the impression that objects are only maps from strings to values. But they are more than that: they are real general-purpose objects. For example, you can use inheritance between objects (see “Layer 2: The Prototype Relationship Between Objects” on page 211), and you can protect objects from being changed. The ability to directly create objects is one of JavaScript’s standout features: you can start with concrete objects (no classes needed!) and introduce abstractions later. For example, constructors, which are factories for objects (as discussed in “Layer 3: Constructors—Factories for Instances” on page 231), are roughly similar to classes in other languages.
 
@@ -96,19 +98,19 @@ var jane = {
 The dot operator lets you “get” a property (read its value). Here are some examples:
 
 点运算符让你可以获取属性（读取它的值）。示例代码如下：
-```shell
-> jane.name // get property `name`
-'Jane'
-> jane.describe // get property `describe`
-[Function]
+```javascript
+jane.name // get property `name`
+// 'Jane'
+jane.describe // get property `describe`
+// [Function]
 ```
 
 Getting a property that doesn’t exist returns `undefined` :
 
 读取一个不存在的属性，将返回`undefined`:
-```shell
-> jane.unknownProperty
-undefined
+```javascript
+jane.unknownProperty
+// undefined
 ```
 
 #### 1.3.2 Calling methods 调用方法
@@ -116,9 +118,9 @@ undefined
 The dot operator is also used to call methods:
 
 点运算符也也可以用来调用方法：
-```shell
-> jane.describe() // call method `describe`
-'Person named Jane'
+```javascript
+jane.describe() // call method `describe`
+// 'Person named Jane'
 ```
 
 #### 1.3.3 Setting properties 设置属性
@@ -126,10 +128,10 @@ The dot operator is also used to call methods:
 You can use the assignment operator ( = ) to set the value of a property referred to via the dot notation. For example:
 
 你可以使用赋值运算符（=）来设置点运算符指代的属性的值，
-```shell
-> jane.name = 'John'; // set property `name`
-> jane.describe()
-'Person named John'
+```javascript
+jane.name = 'John'; // set property `name`
+jane.describe()
+// 'Person named John'
 ```
 
 If a property doesn’t exist yet, setting it automatically creates it. If a property already exists, setting it changes its value.
@@ -173,7 +175,6 @@ Object.keys(obj)
 `delete` affects only the direct (“own,” noninherited) properties of an object. Its prototypes are not touched (see “Deleting an inherited property” on page 217).
 
 `delete` 只能影响到对象直接的（自己的，非继承的）属性。它的原型（prototypes）是无法触及到的。
-
 
 *Use the delete operator sparingly. Most modern JavaScript engines optimize the performance of instances created by constructors if their “shape” doesn’t change (roughly: no properties are removed or added). Deleting a property prevents that optimization.*
 
@@ -263,7 +264,7 @@ Object literals also allow you to use arbitrary strings (that are neither identi
 var obj = { 'not an identifier': 123 };
 Object.keys(obj)
 // [ 'not an identifier' ]
-> obj['not an identifier']
+obj['not an identifier']
 // 123
 ```
 
