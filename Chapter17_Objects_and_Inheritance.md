@@ -1,4 +1,4 @@
-# CHAPTER 17 Objects and Inheritance
+# CHAPTER 17 Objects and Inheritance 对象与继承
 
 There are several layers to object-oriented programming (OOP) in JavaScript:
 - Layer 1: Object-orientation with single objects (covered in “Layer 1: Single Objects” on page 197)
