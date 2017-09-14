@@ -324,7 +324,7 @@ obj['myMethod']()
 // true
 ```
 
-### 1.5.3 Setting properties via the bracket operator 通过方括号运算符设置属性
+#### 1.5.3 Setting properties via the bracket operator 通过方括号运算符设置属性
 
 Setting properties works analogously to the dot operator:
 
