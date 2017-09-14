@@ -617,7 +617,100 @@ Function.prototype.construct = function(argArray) {
 *警告：上述代码对于大部分内置的构造函数无效。因为内置的构造函数作为函数调用时总是会生成新的实例。换言之，line (1) 这一步 没有如期望的那样设置 `inst`。*
 
 
-### 3.3 Pitfall: Functions Inside Methods Shadow this 陷阱：函数内部的方法覆盖了`this`。
+### 3.3 Pitfall: Losing `this` When Extracting a Method  陷阱：提取方法时丢失了 `this`
+
+If you extract a method from an object, it becomes a true function again. Its connection with the object is severed, and it usually doesn’t work properly anymore. Take, for example, the following object, `counter`:
+
+如果你从对象中提取出一个方法来，该方法可以作为一个真正的函数。它与对象的关联被切断了，这个方法通常无法正常工作。以下面这个`counter`对象为例：
+
+```javascript
+var counter = {
+    count: 0,
+    inc: function () {
+        this.count++;
+    }
+}
+```
+
+Extracting `inc` and calling it (as a function!) fails:
+
+把方法`inc`提取出来，作为函数来调用，结果失败了：
+
+```javascript
+var func = counter.inc;
+func()
+counter.count  // didn’t work
+// 0
+```
+
+Here’s the explanation: we have called the value of `counter.inc` as a function. Hence, `this` is the global object and we have performed `window.count++`. `window.count` does not exist and is `undefined`. Applying the `++` operator to it sets it to `NaN`:
+
+解释如下：我们把`counter.inc`作为函数来调用，所以`this` 是全局对象，我们执行了`window.count++`. `window.count` 并不存在，所以等于`undefined`. 对它使用`++`运算符，就把它设置为`NaN`了。
+
+```javascript
+count  // global variable
+// NaN
+```
+
+#### 3.3.1 How to get a warning 如何获得错误提示
+
+If method `inc()` is in strict mode, you get a warning:
+
+如果方法`inc()` 是严格模式的，你将会获得一个错误提示：
+
+```javascript
+counter.inc = function () { 
+	'use strict'; 
+	this.count++
+};
+
+var func2 = counter.inc;
+
+func2()
+// TypeError: Cannot read property 'count' of undefined
+```
+
+The reason is that when we call the strict mode function `func2`, `this` is `undefined`, resulting in an error.
+
+因为当我们调用一个严格模式的函数`func2`时，`this`是`undefined`, 所以会报错。
+
+#### 3.3.2 How to properly extract a method 如何正确地提取方法
+
+Thanks to `bind()`, we can make sure that `inc` doesn’t lose the connection with `counter`:
+
+```javascript
+var func3 = counter.inc.bind(counter);
+func3()
+counter.count  // it worked!
+// 1
+```
+
+#### 3.3.3 Callbacks and extracted methods  回调函数 与 提取的方法
+
+In JavaScript, there are many functions and methods that accept `callbacks`. Examples in browsers are `setTimeout()` and `event handling`. If we pass in `counter.inc` as a callback, it is also invoked as a function, resulting in the same problem just described. To illustrate this phenomenon, let’s use a simple callback-invoking function:
+
+```javascript
+function callIt(callback) {
+    callback();
+}
+```
+
+Executing `counter.count` via callIt triggers a warning (due to strict mode):
+
+```javascript
+> callIt(counter.inc)
+TypeError: Cannot read property 'count' of undefined
+As before, we fix things via bind():
+> callIt(counter.inc.bind(counter))
+> counter.count  // one more than before
+2
+```
+
+*WARNING*
+*Each call to `bind()` creates a new function. That has consequences when you’re registering and unregistering callbacks (e.g., for event handling). You need to store the value you registered somewhere and use it for unregistering, too.*
+
+
+### 3.4 Pitfall: Functions Inside Methods Shadow this 陷阱：函数内部的方法覆盖了`this`。
 
 You often nest function definitions in JavaScript, because functions can be parameters (e.g., callbacks) and because they can be created in place, via function expressions. This poses a problem when a method contains a normal function and you want to access the former’s `this` inside the latter, because the method’s `this` is shadowed by the normal function’s `this` (which doesn’t even have any use for its own `this`). In the following example, the function at (1) tries to access the method’s this at (2):
 
@@ -651,7 +744,7 @@ There are three ways to work around this problem.
 
 有3种方式可以解决这个问题：
 
-#### 3.3.1 Workaround 1: that = this   变通方法1：that = this
+#### 3.4.1 Workaround 1: that = this   变通方法1：that = this
 
 We assign `this` to a variable `that` won’t be shadowed inside the nested function:
 
@@ -676,7 +769,7 @@ obj.loop();
 // Jane knows Cheeta
 ```
 
-#### 3.3.2 Workaround 2: `bind()` 变通方式2：`bind()`
+#### 3.4.2 Workaround 2: `bind()` 变通方式2：`bind()`
 
 We can use `bind()` to give the callback a fixed value for `this` -- namely, the method’s `this` (line (1)):
 
@@ -691,7 +784,7 @@ loop: function () {
 }
 ```
 
-#### 3.3.3 Workaround 3: a thisValue for forEach() 变通方式3：给 forEach() 指定 `this`
+#### 3.4.3 Workaround 3: a thisValue for forEach() 变通方式3：给 forEach() 指定 `this`
 
 A workaround that is specific to forEach() (see Examination Methods) is to provide a second parameter after the callback that becomes the `this` of the callback:
 
