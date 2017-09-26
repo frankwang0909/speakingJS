@@ -88,7 +88,7 @@ We can see that `Person` is a normal function. It only becomes a constructor whe
 
 The `instanceof` operator allows us to check whether an object is an instance of a given constructor:
 
-`instanceof` 运算符允许我们检查一个对象是否是给定构造函数的实例：
+`instanceof` 运算符检查一个对象是否是给定构造函数的实例：
 
 ```javascript
 > jane instanceof Person
@@ -97,9 +97,11 @@ true
 false
 ```
 
-### 10.1 The `new` Operator Implemented in JavaScript
+### 10.1 The `new` Operator Implemented in JavaScript  在 JS 中使用`new` 运算符
 
 If you were to manually implement the `new` operator, it would look roughly as follows:
+
+如果你打算手动实现`new` 运算符，它大致如下所示：
 
 ```javascript
 function newOperator(Constr, args) {
@@ -114,21 +116,53 @@ function newOperator(Constr, args) {
 
 In line (1), you can see that the prototype of an instance created by a constructor `Constr` is `Constr.prototype`.
 
+在（1）行，你可以看出来由构造函数`Constr` 创建的实例的原型是`Constr.prototype`。
+
 Line (2) reveals another feature of the `new` operator: you can return an arbitrary object from a constructor and it becomes the result of the `new`operator. This is useful if you want a constructor to return an instance of a subconstructor (an example is given in [Returning arbitrary objects from a constructor](http://speakingjs.com/es5/ch17.html#constructor_arbitrary_objects)).
 
-### Terminology: The Two Prototypes
+（2）行 揭示了`new` 运算符的另一个特性：你可以从一个构造函数中返回任意对象，这个对象会成为`new` 运算符的结果。如果你想要一个构造函数返回一个子构造函数（ [ 从构造函数中返回任意对象](http://speakingjs.com/es5/ch17.html#constructor_arbitrary_objects) 一节中的例子）的实例，这个特性很有用处。
+
+### 10.2 Terminology: The Two Prototypes 术语：两个原型
 
 Unfortunately, the term *prototype* is used ambiguously in JavaScript:
 
+很不幸地是，在JS 中使用的术语 *prototype* 容易引起歧义。
+
 - Prototype 1: The prototype relationship
 
-  An object can be the prototype of another object:`> var proto = {};> var obj = Object.create(proto);> Object.getPrototypeOf(obj) === prototrue`In the preceding example, `proto` is the prototype of `obj`.
+  原型1：原型关系
 
-- Prototype 2: The value of the property `prototype`
+  An object can be the prototype of another object:
 
-  Each constructor `C` has a `prototype` property[ that refers to an object. That object becomes the prototype of all instances of `C`:]()`> function C() {}> Object.getPrototypeOf(new C()) === C.prototypetrue`
+  一个对象可以是另一个对象的原型：
 
+```javascript
+> var proto = {};
+> var obj = Object.create(proto);
+> Object.getPrototypeOf(obj) === proto
+true
+```
+
+In the preceding example, `proto` is the prototype of `obj`.
+
+上述例子中，对象`proto` 是另一个对象`obj` 的原型。
+
+- Prototype 2: The value of the property `prototype` 
+
+  原型2：`prototype` 属性的值
+
+  Each constructor `C` has a `prototype` property that refers to an object. That object becomes the prototype of all instances of `C`:
+
+  每一个构造函数`C` 都有一个`prototype` 属性，指的是一个对象。这个对象将成为`C` 的所有实例的原型。
+
+```javascript
+> function C() {}
+> Object.getPrototypeOf(new C()) === C.prototype
+true
+```
 Usually the context makes it clear which of the two prototypes is meant. Should disambiguation be necessary, then we are stuck with *prototype* to describe the relationship between objects, because that name has made it into the standard library via `getPrototypeOf` and `isPrototypeOf`. We thus need to find a different name for the object referenced by the `prototype` property. One possibility is *constructor prototype*, but that is problematic because constructors have prototypes, too:
+
+通常，上下文能够使得这两个原型的意义明确。如果要消除模棱两可情况，那么我们就必须用`prototype`  来描述对象间的原型关系。因为`prototype` 这个名字通过`getPrototypeof` 和`isPrototypeOf` 已经存在于标准库中。那么，我们需要为`prototype` 属性指向的对象找到一个不同的名字。*构造函数原型（constructor prototype）*是 一个可能的选项。但是这也有问题，因为构造函数也是原型。
 
 ```javascript
 > function Foo() {}
@@ -138,9 +172,13 @@ true
 
 Thus, *instance prototype* is the best option.
 
-### The constructor Property of Instances
+那么，*实例原型（instance prototype）* 是最佳选择。
+
+### 10.3 The `constructor` Property of Instances 实例的`constructor` 属性
 
 By default, each function `C` contains an instance prototype object `C.prototype`whose property `constructor` points back to `C`:
+
+默认情况下，每一个函数`C` 包含一个实例原型对象 `C.prototype` ，这个对象的`constructor` 属性指向`C` 。
 
 ```javascript
 > function C() {}
@@ -150,29 +188,42 @@ true
 
 Because the `constructor` property is inherited from the prototype by each instance, you can use it to get the constructor of an instance:
 
+因为每个实例都继承了原型的`constructor` 属性，你可以使用它来获取实例的构造函数：
+
 ```javascript
 > var o = new C();
 > o.constructor
 [Function: C]
 ```
 
-#### Use cases for the constructor property
+#### 10.3.1 Use cases for the `constructor` property `constructor` 属性的使用场合
 
 - Switching over an object’s constructor
 
+  switch 循环遍历对象的`constructor`
+
   In the following `catch` clause, we take different actions, depending on the constructor of the caught exception:
 
-try {    ...} 
-catch (e) {    
-    switch (e.constructor) {        
-          case SyntaxError:            ...            
-            break;        
-          case CustomError:            ...            
-            break;        ...    
-    }
-}
+  在以下`catch` 语句中，我们根据捕获异常的`constructor`的不同，采取不同的行动：
 
-`WARNING` This approach detects only direct instances of a given constructor. In contrast, `instanceof` detects both direct instances and instances of all subconstructors.
+  
+```javascript
+try {    
+// ...
+} catch (e) {  
+	switch (e.constructor) {        
+      case SyntaxError:            ''           
+        break;        
+      case CustomError:            ''            
+        break;          
+	}
+}
+```
+
+
+*WARNING*
+
+This approach detects only direct instances of a given constructor. In contrast, `instanceof` detects both direct instances and instances of all subconstructors.
 
 - Determining the name of an object’s constructor
 
@@ -181,8 +232,13 @@ catch (e) {
   > function Foo() {}
   > var f = new Foo();
   > f.constructor.name
-  'Foo'`WARNINGNot all JavaScript engines support the property `name` for functions.
+  'Foo'
   ```
+  *WARNING*
+
+   Not all JavaScript engines support the property `name` for functions.
+
+  ​
 
 - Creating similar objects
 
