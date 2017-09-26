@@ -345,7 +345,7 @@ In strict mode, you get an exception:
 
 在严格模式中，会抛出一个异常。
 
-```
+```javascript
 > (function () { 
 'use strict'; 
 obj.foo = 'b' 

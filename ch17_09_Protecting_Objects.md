@@ -43,7 +43,7 @@ and throws an error in strict mode:
 
 ```javascript
 > (function () { 'use strict'; obj.bar = 'b' }());
-TypeError: Can't add property bar, object is not extensible
+TypeError: Cannot add property bar, object is not extensible
 ```
 
 You can still delete properties, though:
