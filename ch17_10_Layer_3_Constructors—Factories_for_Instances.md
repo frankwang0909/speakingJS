@@ -97,7 +97,7 @@ true
 false
 ```
 
-### 10.1 The `new` Operator Implemented in JavaScript  在 JS 中使用`new` 运算符
+### 10.1 The `new` Operator Implemented in JavaScript  在 JS 中实现的 `new` 运算符
 
 If you were to manually implement the `new` operator, it would look roughly as follows:
 
@@ -196,17 +196,15 @@ Because the `constructor` property is inherited from the prototype by each insta
 [Function: C]
 ```
 
-#### 10.3.1 Use cases for the `constructor` property `constructor` 属性的使用场合
+#### 10.3.1 Use cases for the `constructor` property  属性`constructor` 的使用场合
 
-- Switching over an object’s constructor
-
-  switch 循环遍历对象的`constructor`
+- Switching over an object’s constructor   *switch 循环对象的构造函数*
 
   In the following `catch` clause, we take different actions, depending on the constructor of the caught exception:
 
   在以下`catch` 语句中，我们根据捕获异常的`constructor`的不同，采取不同的行动：
 
-  
+
 ```javascript
 try {    
 // ...
@@ -221,11 +219,13 @@ try {
 ```
 
 
-*WARNING*
+*WARNING*  *警告*
 
 This approach detects only direct instances of a given constructor. In contrast, `instanceof` detects both direct instances and instances of all subconstructors.
 
-- Determining the name of an object’s constructor
+这种方法只能检测给定构造函数的直接实例。相反，`instanceof` 可以同时检测直接的实例和所有子构造函数的实例。
+
+- Determining the name of an object’s constructor  *查明对象构造函数的名称*
 
   For example:
   ```javascript
@@ -234,55 +234,70 @@ This approach detects only direct instances of a given constructor. In contrast,
   > f.constructor.name
   'Foo'
   ```
-  *WARNING*
+   *WARNING*  *警告*
 
-   Not all JavaScript engines support the property `name` for functions.
+  Not all JavaScript engines support the property `name` for functions.
 
-  ​
+  不是所有的 JS 引擎都支持函数的`name` 属性。
 
-- Creating similar objects
+- Creating similar objects   *创建相似的对象*
 
   This is how you create a new object, `y`, that has the same constructor as an existing object, `x`:
+
+  创建一个新对象`y`, 这个新对象与现有的对象`x` 有相同的构造函数。
 ```javascript
-  function Constr() {}
-  var x = new Constr();
-  var y = new x.constructor();
-  console.log(y instanceof Constr); 
+function Constr() {}
+var x = new Constr();
+var y = new x.constructor();
+console.log(y instanceof Constr); 
   // true
 ```
 
   This trick is handy for a method that must work for instances of subconstructors and wants to create a new instance that is similar to `this`. Then you can’t use a fixed constructor:
+
+当一个方法必须用于子构造函数的实例，并且想要创建一个与`this` 类似的新的实例时，这个技巧就很管用。那么，你不不能使用固定的构造函数：
+
 ```javascript
 SuperConstr.prototype.createCopy = function () {   
     return new this.constructor(...);
 };
 ```
 
-- Referring to a superconstructor
+- Referring to a superconstructor   *涉及父构造函数*
 
-  Some[ inheritance libraries assign the superprototype to a property of a subconstructor. For example, the YUI framework provides subclassing via ]()[`Y.extend`](http://yuilibrary.com/yui/docs/yui/yui-extend.html):
+  Some inheritance libraries assign the superprototype to a property of a subconstructor. For example, the YUI framework provides subclassing via [`Y.extend`](http://yuilibrary.com/yui/docs/yui/yui-extend.html):
+
+  一些继承类库将父级原型赋值给子构造函数的属性。例如，YUI 框架提供的通过`Y.extend` 实现 子类化（继承）：
 ```javascript
-  function Super() {}
-  function Sub() {    
-      Sub.superclass.constructor.call(this); // (1)
- }
+function Super() {}
+function Sub() {    
+     Sub.superclass.constructor.call(this); // (1)
+}
+Y.extend(Sub, Super);
 ```
-    Y.extend(Sub, Super);
-    The call in line (1) works, because `extend` sets `Sub.superclass` to `Super.prototype`. Thanks to the `constructor` property, you can call the superconstructor as a method.
+The call in line (1) works, because `extend` sets `Sub.superclass` to `Super.prototype`. Thanks to the `constructor` property, you can call the superconstructor as a method.
 
-### NOTE
+（1） 行的代码能运行，是因为`extend` 把`Sub.superclass` 设置为`Super.prototype` 。 多亏了`constructor` 属性，你可以将父构造函数作为方法调用。
+
+*NOTE*  *注意*
 
 The `instanceof` operator (see [The instanceof Operator](http://speakingjs.com/es5/ch17.html#operator_instanceof)) does not rely on the property `constructor`.
 
-#### Best practice
+`instanceof` 运算符不依赖于`constructor` 属性。
+
+#### 10.3.2 Best practice  最佳实践
 
 Make sure that for each constructor `C`, the following assertion holds:
 
+确保每个构造函数`C` 都符合以下断言：
+
 ```javascript
-C.prototype.constructor === Cjavascript
+C.prototype.constructor === C
 ```
 
 By default, every function `f` already has a property `prototype` that is set up correctly:
+
+在默认情况下，每个函数`f` 已经有一个正确地创建的属性`prototype` 。
 
 ```javascript
 > function f() {}
@@ -291,6 +306,8 @@ true
 ```
 
 You should thus avoid replacing this object and only add properties to it:
+
+因此，你应该避免替换掉这个`prototype` 对象，只是对其添加属性：
 
 ```javascript
 // Avoid:
@@ -306,6 +323,8 @@ C.prototype.method1 = function (...) { ... };
 
 If you do replace it, you should manually assign the correct value to `constructor`:
 
+如果你要替换掉这个对象，你应该手动地为`constructor` 赋上正确的值。
+
 ```javascript
 C.prototype = {
     constructor: C,
@@ -316,15 +335,21 @@ C.prototype = {
 
 Note that nothing crucial in JavaScript depends on the `constructor` property; but it is good style to set it up, because it enables the techniques mentioned in this section.
 
-### The instanceof Operator
+注意： JS  中没有什么很关键的东西依赖于`constructor` 属性，但设置它（Frank 备注：这里应该指重新将`constructor` 属性指向它的构造函数本身）是一个良好的编程风格。因为这样做，可以使得本小节中提到的技术可以使用。
+
+### 10.4 The `instanceof` Operator    `instanceof` 运算符
 
 The `instanceof` operator:
+
+`instanceof` 运算符：
 
 ```javascript
 value instanceof Constr
 ```
 
 determines whether `value` has been created by the constructor `Constr` or a subconstructor. It does so by checking whether `Constr.prototype` is in the prototype chain of `value`. Therefore, the following two expressions are equivalent:
+
+判断`value` 是否由构造函数`Constr` 或者其子构造函数所创建。这是通过检查`Constr.prototype` 是否在`value` 的原型链上来实现的。因此，以下两个表达式是等价的：
 
 ```javascript
 value instanceof Constr
@@ -350,6 +375,8 @@ true
 
 As expected, `instanceof` is always `false` for primitive values:
 
+ 对于原始类型的值， `instanceof` 总是返回`false`
+
 ```javascript
 > 'abc' instanceof Object
 false
@@ -357,16 +384,20 @@ false
 false
 ```
 
-Finally, `instanceof` throws an exception if its right side isn’t a function:
+Finally, `instanceof` throws an exception if its right side isn’t a function: 
+
+如果运算符`instanceof` 右侧不是函数，则抛出异常：
 
 ```javascript
 > [] instanceof 123
 TypeError: Expecting a function in instanceof check
 ```
 
-#### Pitfall: objects that are not instances of Object
+#### 10.4.1 Pitfall: objects that are not instances of `Object`  陷阱：有些对象不是`Object` 的实例
 
 Almost all objects are instances of `Object`, because `Object.prototype` is in their prototype chain. But there are also objects where that is not the case. Here are two examples:
+
+ 几乎所有对象都是`Object` 的实例，因为 `Object.prototype` 在它们的原型链上。但也有些对象不是这样的。例如：
 
 ```javascript
 > Object.create(null) instanceof Object
@@ -377,6 +408,8 @@ false
 
 The former object is explained in more detail in [The dict Pattern: Objects Without Prototypes Are Better Maps](http://speakingjs.com/es5/ch17.html#dict_pattern). The latter object is where most prototype chains end (and they must end somewhere). Neither object has a prototype:
 
+对象`Object.create(null)`在[字典模式: 没有原型的对象是更好的maps ](http://speakingjs.com/es5/ch17.html#dict_pattern) 章节中有详细的解释。对象 `Object.prototype` 是大部分原型链的末端（原型链必须在某个地方结束）。以上两个都想都没有原型：
+
 ```javascript
 > Object.getPrototypeOf(Object.create(null))
 null
@@ -385,6 +418,8 @@ null
 ```
 
 But `typeof` correctly classifies them as objects:
+
+但是`typeof` 正确地把它归类为对象：
 
 ```javascript
 > typeof Object.create(null)
@@ -395,15 +430,21 @@ But `typeof` correctly classifies them as objects:
 
 This pitfall is not a deal-breaker for most use cases for `instanceof`, but you have to be aware of it.
 
-#### Pitfall: crossing realms (frames or windows)
+这个陷阱不会破坏`instanceof`大部分的使用场景， 但你需要知道这个陷阱的存在。
+
+#### 10.4.2 Pitfall: crossing realms (frames or windows) 陷阱：跨域
 
 In web browsers, each frame and window has its own *realm* with separate global variables. That prevents `instanceof` from working for objects that cross realms. To see why, look at the following code:
+
+在 web 浏览器，每一个`frame` 或者窗口 都有自己的域，每个域有独立的全局对象。这就阻止了`instanceof`  用于跨域的对象。想知道原因，看下面的代码：
 
 ```javascript
 if (myvar instanceof Array) ...  // Doesn’t always work
 ```
 
 If `myvar` is an array from a different realm, then its prototype is the `Array.prototype` from that realm. Therefore, `instanceof` will not find the `Array.prototype` of the current realm in the prototype chain of `myvar` and will return `false`. ECMAScript 5 has the function `Array.isArray()`, which always works:
+
+如果`myvar` 是另一个域的数组，那么它的原型是那个域的`Array.prototype` 。因此，`instanceof`  在`myvar` 的原型链上找不到当前域的`Array.prototype` ，返回`false` 。 ES5 有一个可以生效的函数`Array.isArray()` 。
 
 ```javascript
 <head>
@@ -425,11 +466,19 @@ If `myvar` is an array from a different realm, then its prototype is the `Array.
 
 Obviously, this is also an issue with non-built-in constructors.
 
+显然，内置的构造函数没有这个问题。
+
 Apart from using `Array.isArray()`, there are several things you can do to work around this problem:
+
+除了使用	`Array.isArray()` ，还有一些可以用于解决这个问题的东西：
 
 - Avoid objects crossing realms. Browsers have the [`postMessage()`](http://mzl.la/1fwmNrL) method, which can copy an object to another realm instead of passing a reference.
 
+  避免跨域的对象。浏览器有`postMessage()` 方法，可以用于拷贝一个对象到另一个域，而不是传递一份对象的引用。
+
 - Check the name of the constructor of an instance (only works on engines that support the property `name` for functions):
+
+  检查实例的构造函数的名称（仅在支持函数的`name` 属性的引擎中有效）：
 
   ```javascript
   someValue.constructor.name === 'NameOfExpectedConstructor'
@@ -437,17 +486,33 @@ Apart from using `Array.isArray()`, there are several things you can do to work 
 
 - Use a prototype property to mark instances as belonging to a type `T`. There are several ways in which you can do so. The checks for whether `value` is an instance of `T` look as follows:
 
+  使用一个原型的属性来标记实例属于类型 `T`。有许多种实现方式。检查`value` 是否是`T` 的实例：
+
   - `value.isT()`: The prototype of `T` instances must return `true` from this method; a common superconstructor should return the default value, `false`.
+
+    `value.isT()` : 在这个方法中，`T` 的实例的原型返回`true` ；共同的父构造函数应该返回默认值`false` 。
+
   - `'T' in value`: You must tag the prototype of `T` instances with a property whose key is `'T'` (or something more unique).
+
+    `'T' in value` : 你必须用一个键名为`'T'` （或其他的唯一的)属性标记`T` 的实例的原型
+
   - `value.TYPE_NAME === 'T'`: Every relevant prototype must have a `TYPE_NAME`property with an appropriate value.
 
-### Tips for Implementing Constructors
+    `value.TYPE_NAME === 'T'`: 每一个相关的原型必须有一个带有合适的值的`TYPE_NAME`属性 
+
+
+
+### 10.5 Tips for Implementing Constructors 使用构造函数的技巧
 
 This section gives a few tips for implementing constructors.
 
-#### Protection against forgetting new: strict mode
+这一小节提供一些使用构造函数的技巧。
+
+#### 10.5.1 Protection against forgetting `new`: strict mode 防范忘记使用`new`: 严格模式
 
 If you forget `new` when you use a constructor, you are calling it as a function instead of as a constructor. In sloppy mode, you don’t get an instance and global variables are created. Unfortunately, all of this happens without a warning:
+
+如果你使用一个构造函数时忘记了`new`，构造函数会作为函数而不是构造函数调用。在普通模式下，你不会得到一个实例，会被创建全局变量。不幸的是，这些行为的发生没有警告信息：
 
 ```javascript
 function SloppyColor(name) {
@@ -463,6 +528,8 @@ console.log(name); // green
 
 In strict mode, you get an exception:
 
+在严格模式下，报错：
+
 ```javascript
 function StrictColor(name) {
     'use strict';
@@ -472,9 +539,11 @@ var c = StrictColor('green');
 // TypeError: Cannot set property 'name' of undefined
 ```
 
-#### Returning arbitrary objects from a constructor
+#### 10.5.2 Returning arbitrary objects from a constructor 从构造函数中返回任意对象
 
 In many object-oriented languages, constructors can produce only direct instances. For example, consider Java: let’s say you want to implement a class `Expression` that has the subclasses `Addition` and `Multiplication`. Parsing produces direct instances of the latter two classes. You can’t implement it as a constructor of `Expression`, because that constructor can produce only direct instances of `Expression`. As a workaround, static factory methods are used in Java:
+
+在许多面向对象编程的语言中，构造函数只能产生直接的实例。例如，在 Java 中，你想要使用拥有子类`Addition` 和 `Multiplication` 的类`Expression` 。解析会产生它的两个子类的直接实例。你不能将这个 `Expression`  类 作为构造函数使用。因为这个构造函数只能产生`Expression` 的直接实例。作为变通方法，Java 中使用静态的工厂方法：
 
 ```javascript
 class Expression {
@@ -495,6 +564,8 @@ Expression expr = Expression.parse(someStr);
 
 In JavaScript, you can simply return whatever object you need from a constructor. Thus, the JavaScript version of the preceding code would look like:
 
+在 JS 中， 你可以返回任何你需要的对象。因此，JS 的版本的代码如下所示：
+
 ```javascript
 function Expression(str) {
     if (...) {
@@ -510,3 +581,5 @@ var expr = new Expression(someStr);
 ```
 
 That is good news: JavaScript constructors don’t lock you in, so you can always change your mind as to whether a constructor should return a direct instance or something else.
+
+好消息：JS  的构造函数不会把你锁死。至于构造函数返回一个直接的实例还是其他对象，你随时都可以改变主意。
