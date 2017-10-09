@@ -180,6 +180,8 @@ Sub.prototype.methodB = function (x, y) {
 
 Setting up `Sub._super` is usually handled by a utility function that also connects the subprototype to the superprototype. For example:
 
+ 通常由一个工具函数来设置`Sub._super` 以及连接子类原型和父类原型。比如：
+
 ```javascript
 function subclasses(SubC, SuperC) {
     var subProto = Object.create(SuperC.prototype);
