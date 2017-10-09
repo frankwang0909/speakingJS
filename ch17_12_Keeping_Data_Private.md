@@ -332,7 +332,7 @@ var obj = function () {  // open IIFE
 
 Some global data is relevant only for a constructor and the prototype methods. By wrapping an IIFE around both, you can hide it from public view. [Private Data in Properties with Reified Keys](http://speakingjs.com/es5/ch17.html#private_data_reified_keys) gave an example: the constructor `StringBuilder` and its prototype methods use the constant `KEY_BUFFER`, which contains a property key. That constant is stored in the environment of an IIFE:
 
-一些全局数据只对构造函数和原型方法有意义。用 IIFE 包裹这两者，你能将这些数据在公众面前隐藏。带有具体化键名的属性中的私有数据。
+一些全局数据只对构造函数和原型方法有意义。用 IIFE 包裹这两者，你能将这些数据在公众面前隐藏。带有具体化键名的属性中的私有数据给了一个例子：构造函数`StringBuilder` 及其原型方法使用常量`KEY_BUFFER` 。这个常量包含了一个属性键名，它存储在 IIFE 的环境中。
 
 ```javascript
 var StringBuilder = function () { // open IIFE
@@ -350,9 +350,13 @@ var StringBuilder = function () { // open IIFE
 
 Note that if you are using a module system (see [Chapter 31](http://speakingjs.com/es5/ch31.html)), you can achieve the same effect with cleaner code by putting the constructor plus methods in a module.
 
-#### 12.4.3 Attaching global data to a method
+注意：如果你使用模块系统（见第31章），你可以用更简洁的代码将构造函数和方法置于模块中，实现相同的效果。
+
+#### 12.4.3 Attaching global data to a method 将全局数据绑定到方法上
 
 Sometimes you only need global data for a single method. You can keep it private by putting it in the environment of an IIFE that you wrap around the method. For example:
+
+有时，你只需要用于一个单独方法的全局数据。你可以通过把全局的数据放到包裹这个方法的 IIFE 的环境中，将它变为私有的。
 
 ```javascript
 var obj = {
@@ -371,6 +375,8 @@ var obj = {
 ```
 
 Here is the interaction:
+
+结果如下：
 
 ```javascript
 > obj.method()
